@@ -16,7 +16,7 @@ async function generate() {
 
   const btn = document.getElementById('genBtn');
   btn.disabled = true;
-  btn.textContent = 'Analyse…';
+  btn.textContent = 'Analyse...';
 
   const rz = document.getElementById('results');
   rz.classList.add('show');
@@ -25,20 +25,20 @@ async function generate() {
   document.getElementById('pdfBtn').style.display = 'none';
   rz.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  const prompt = `Tu es un expert de la philosophie japonaise de l'ikigaï.
-Voici les 4 dimensions d'un étudiant :
-- Ce que j'aime : ${aime || '(non renseigné)'}
-- Ce pour quoi je suis doué·e : ${doue || '(non renseigné)'}
-- Ce pour quoi je peux être payé·e : ${paye || '(non renseigné)'}
-- Ce dont le monde a besoin : ${monde || '(non renseigné)'}
+  const prompt = `Tu es un expert de la philosophie japonaise de l'ikigai.
+Voici les 4 dimensions d'un etudiant :
+- Ce que j'aime : ${aime || '(non renseigne)'}
+- Ce pour quoi je suis doue : ${doue || '(non renseigne)'}
+- Ce pour quoi je peux etre paye : ${paye || '(non renseigne)'}
+- Ce dont le monde a besoin : ${monde || '(non renseigne)'}
 
-Réponds UNIQUEMENT en JSON valide sans backticks ni commentaires, exactement cette structure :
+Reponds UNIQUEMENT en JSON valide sans backticks ni commentaires, exactement cette structure :
 {
-  "passion": "1 phrase (20-28 mots) définissant l'intersection aime+doué·e",
-  "mission": "1 phrase (20-28 mots) définissant l'intersection aime+monde",
-  "vocation": "1 phrase (20-28 mots) définissant l'intersection doué·e+monde",
-  "profession": "1 phrase (20-28 mots) définissant l'intersection doué·e+payé·e",
-  "ikigai": "1 phrase de synthèse (30-40 mots) qui fait le lien concret entre les 4 intersections et résume la raison d'être de cet étudiant. Pas de métaphore poétique, une phrase claire et directe."
+  "passion": "1 phrase (20-28 mots) definissant l'intersection aime+doue",
+  "mission": "1 phrase (20-28 mots) definissant l'intersection aime+monde",
+  "vocation": "1 phrase (20-28 mots) definissant l'intersection doue+monde",
+  "profession": "1 phrase (20-28 mots) definissant l'intersection doue+paye",
+  "ikigai": "1 phrase de synthese (30-40 mots) qui fait le lien concret entre les 4 intersections et resume la raison d'etre de cet etudiant. Pas de metaphore poetique, une phrase claire et directe."
 }`;
 
   try {
@@ -53,7 +53,7 @@ Réponds UNIQUEMENT en JSON valide sans backticks ni commentaires, exactement ce
         max_tokens: 800,
         temperature: 0.7,
         messages: [
-          { role: 'system', content: 'Tu es un expert de la philosophie japonaise de l\'ikigaï. Tu réponds toujours en JSON valide uniquement, sans backticks ni commentaires.' },
+          { role: 'system', content: 'Tu es un expert de la philosophie japonaise de l\'ikigai. Tu reponds toujours en JSON valide uniquement, sans backticks ni commentaires.' },
           { role: 'user', content: prompt }
         ]
       })
@@ -65,23 +65,23 @@ Réponds UNIQUEMENT en JSON valide sans backticks ni commentaires, exactement ce
     const text = data.choices[0].message.content;
     const p = JSON.parse(text.replace(/```json|```/g, '').trim());
 
-    document.getElementById('r-passion').textContent    = p.passion    || '—';
-    document.getElementById('r-mission').textContent    = p.mission    || '—';
-    document.getElementById('r-vocation').textContent   = p.vocation   || '—';
-    document.getElementById('r-profession').textContent = p.profession || '—';
-    document.getElementById('r-ikigai').textContent     = p.ikigai     || '—';
+    document.getElementById('r-passion').textContent    = p.passion    || '-';
+    document.getElementById('r-mission').textContent    = p.mission    || '-';
+    document.getElementById('r-vocation').textContent   = p.vocation   || '-';
+    document.getElementById('r-profession').textContent = p.profession || '-';
+    document.getElementById('r-ikigai').textContent     = p.ikigai     || '-';
 
     document.getElementById('loadMsg').style.display    = 'none';
     document.getElementById('resContent').style.display = 'block';
     document.getElementById('pdfBtn').style.display     = 'flex';
 
   } catch (e) {
-    document.getElementById('loadMsg').textContent = 'Une erreur est survenue. Réessaie dans quelques instants.';
+    document.getElementById('loadMsg').textContent = 'Une erreur est survenue. Reessaie dans quelques instants.';
     console.error(e);
   }
 
   btn.disabled = false;
-  btn.textContent = 'Révéler mon ikigaï';
+  btn.textContent = 'Reveler mon ikigai';
 }
 
 // ─── Reset ───────────────────────────────────────────────────────
@@ -93,126 +93,231 @@ function resetAll() {
   document.getElementById('pdfBtn').style.display = 'none';
 }
 
+// ─── Helpers PDF ─────────────────────────────────────────────────
+function addPage(doc) {
+  doc.addPage();
+  doc.setFillColor(250, 248, 245);
+  doc.rect(0, 0, 210, 297, 'F');
+  return 20;
+}
+
+function blockField(doc, y, W, M, label, num, val, rc) {
+  const lineH = 5;
+  const lines = doc.splitTextToSize(val || '-', W - 2*M - 14);
+  const bh = 10 + lines.length * lineH + 8;
+
+  if (y + bh > 275) { y = addPage(doc); }
+
+  // fond clair
+  doc.setFillColor(rc[0], rc[1], rc[2]);
+  doc.setGState(doc.GState({ opacity: 0.12 }));
+  doc.roundedRect(M, y, W - 2*M, bh, 3, 3, 'F');
+  doc.setGState(doc.GState({ opacity: 1 }));
+
+  // barre coloree gauche
+  doc.setFillColor(rc[0], rc[1], rc[2]);
+  doc.rect(M, y, 3, bh, 'F');
+
+  // numero + titre
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7);
+  doc.setTextColor(rc[0]*0.55, rc[1]*0.55, rc[2]*0.55);
+  doc.text(num, M + 7, y + 6);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(44, 37, 32);
+  doc.text(label, M + 7, y + 12);
+
+  // contenu
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(70, 60, 55);
+  doc.text(lines, M + 7, y + 19);
+
+  return y + bh + 4;
+}
+
+function blockIntersection(doc, y, W, M, label, txt, rc) {
+  const lines = doc.splitTextToSize(txt || '-', W - 2*M - 14);
+  const bh = 8 + lines.length * 5 + 6;
+
+  if (y + bh > 275) { y = addPage(doc); }
+
+  doc.setFillColor(rc[0], rc[1], rc[2]);
+  doc.setGState(doc.GState({ opacity: 0.1 }));
+  doc.roundedRect(M, y, W - 2*M, bh, 3, 3, 'F');
+  doc.setGState(doc.GState({ opacity: 1 }));
+
+  doc.setFillColor(rc[0], rc[1], rc[2]);
+  doc.rect(M, y, 3, bh, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(rc[0]*0.6, rc[1]*0.6, rc[2]*0.6);
+  doc.text(label, M + 7, y + 7);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(44, 37, 32);
+  doc.text(lines, M + 7, y + 13);
+
+  return y + bh + 4;
+}
+
 // ─── PDF Download ─────────────────────────────────────────────────
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = 210, H = 297, M = 20;
+  const W = 210, M = 18;
 
+  // ── PAGE 1 : fond + en-tete ──
   doc.setFillColor(250, 248, 245);
-  doc.rect(0, 0, W, H, 'F');
+  doc.rect(0, 0, W, 297, 'F');
 
+  // Cadre or
   doc.setDrawColor(184, 151, 106);
-  doc.setLineWidth(0.3);
-  doc.rect(M - 5, M - 5, W - 2 * (M - 5), H - 2 * (M - 5));
+  doc.setLineWidth(0.4);
+  doc.rect(10, 10, 190, 277);
 
+  // Titre
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
+  doc.setFontSize(7);
   doc.setTextColor(184, 151, 106);
-  doc.text('MON IKIGAI  ·  生き甲斐', W / 2, M + 2, { align: 'center' });
+  doc.text('MON IKIGAI', W/2, 20, { align: 'center' });
 
-  doc.setLineWidth(0.2);
-  doc.setDrawColor(220, 196, 154);
-  doc.line(M + 10, M + 8, W - M - 10, M + 8);
+  doc.setLineWidth(0.15);
+  doc.setDrawColor(200, 170, 120);
+  doc.line(M+10, 23, W-M-10, 23);
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
+  doc.setFontSize(24);
   doc.setTextColor(44, 37, 32);
-  doc.text('Mon Ikigaï', W / 2, M + 22, { align: 'center' });
+  doc.text('Mon Ikigai', W/2, 34, { align: 'center' });
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  doc.setTextColor(160, 150, 144);
-  doc.text("Ma raison d'être", W / 2, M + 30, { align: 'center' });
+  doc.setTextColor(150, 140, 130);
+  doc.text("Ma raison d'etre", W/2, 41, { align: 'center' });
 
-  let y = M + 44;
+  doc.setLineWidth(0.15);
+  doc.setDrawColor(200, 170, 120);
+  doc.line(M+10, 45, W-M-10, 45);
 
+  let y = 52;
+
+  // ── 4 CHAMPS ──
   const fields = [
-    { num: "01 · 愛", title: "Ce que j'aime",                    id: 'aime',  r: 242, g: 196, b: 206 },
-    { num: "02 · 才", title: "Ce pour quoi je suis doué·e",      id: 'doue',  r: 176, g: 188, b: 219 },
-    { num: "03 · 業", title: "Ce pour quoi je peux être payé·e", id: 'paye',  r: 220, g: 196, b: 154 },
-    { num: "04 · 世", title: "Ce dont le monde a besoin",        id: 'monde', r: 168, g: 200, b: 168 }
+    { num: '01', label: "Ce que j'aime",                    id: 'aime',  rc: [220, 160, 175] },
+    { num: '02', label: "Ce pour quoi je suis doue(e)",     id: 'doue',  rc: [140, 155, 210] },
+    { num: '03', label: "Ce pour quoi je peux etre paye(e)",id: 'paye',  rc: [195, 165, 110] },
+    { num: '04', label: "Ce dont le monde a besoin",        id: 'monde', rc: [120, 175, 130] }
   ];
 
   fields.forEach(f => {
-    const val = document.getElementById(f.id).value.trim() || '—';
-    const lines = doc.splitTextToSize(val, W - 2 * M - 12);
-    const bh = 18 + lines.length * 5;
+    const val = document.getElementById(f.id).value.trim();
+    y = blockField(doc, y, W, M, f.label, f.num, val, f.rc);
+  });
 
-    doc.setFillColor(f.r, f.g, f.b, 0.15);
-    doc.roundedRect(M, y, W - 2 * M, bh, 3, 3, 'F');
+  // ── PAGE 2 : Synthese ──
+  y = addPage(doc);
 
-    doc.setDrawColor(f.r, f.g, f.b);
-    doc.setLineWidth(0.5);
-    doc.line(M, y + 1, M, y + bh - 1);
+  // Cadre or page 2
+  doc.setDrawColor(184, 151, 106);
+  doc.setLineWidth(0.4);
+  doc.rect(10, 10, 190, 277);
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(f.r * 0.6, f.g * 0.6, f.b * 0.6);
-    doc.text(f.num, M + 6, y + 7);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7);
+  doc.setTextColor(184, 151, 106);
+  doc.text('MON IKIGAI - SYNTHESE', W/2, 20, { align: 'center' });
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9.5);
-    doc.setTextColor(44, 37, 32);
-    doc.text(f.title, M + 6, y + 13);
+  doc.setLineWidth(0.15);
+  doc.setDrawColor(200, 170, 120);
+  doc.line(M+10, 23, W-M-10, 23);
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(80, 70, 65);
-    doc.text(lines, M + 6, y + 20);
+  y = 32;
 
-    y += bh + 4;
+  // ── 4 INTERSECTIONS ──
+  const sections = [
+    { label: 'PASSION',    id: 'r-passion',    rc: [200, 100, 120] },
+    { label: 'MISSION',    id: 'r-mission',    rc: [80,  150,  90] },
+    { label: 'VOCATION',   id: 'r-vocation',   rc: [80,  100, 175] },
+    { label: 'PROFESSION', id: 'r-profession', rc: [185, 140,  70] }
+  ];
+
+  sections.forEach(s => {
+    const txt = document.getElementById(s.id).textContent;
+    y = blockIntersection(doc, y, W, M, s.label, txt, s.rc);
   });
 
   y += 4;
-  doc.setLineWidth(0.2);
-  doc.setDrawColor(220, 196, 154);
-  doc.line(M, y, W - M, y);
+  doc.setLineWidth(0.15);
+  doc.setDrawColor(200, 170, 120);
+  doc.line(M, y, W-M, y);
   y += 8;
 
-  const sections = [
-    { lbl: 'PASSION',    txt: document.getElementById('r-passion').textContent,    r: 176, g: 86,  b: 106 },
-    { lbl: 'MISSION',    txt: document.getElementById('r-mission').textContent,    r: 74,  g: 128, b: 80  },
-    { lbl: 'VOCATION',   txt: document.getElementById('r-vocation').textContent,   r: 58,  g: 72,  b: 112 },
-    { lbl: 'PROFESSION', txt: document.getElementById('r-profession').textContent, r: 154, g: 112, b: 64  }
-  ];
-
-  const cw = (W - 2 * M - 4) / 2;
-  sections.forEach((s, i) => {
-    const cx = M + (i % 2) * (cw + 4);
-    const cy = y + Math.floor(i / 2) * 28;
-    const lines = doc.splitTextToSize(s.txt || '—', cw - 8);
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(s.r, s.g, s.b);
-    doc.text(s.lbl, cx + 4, cy + 6);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(44, 37, 32);
-    doc.text(lines, cx + 4, cy + 11);
-  });
-
-  y += Math.ceil(sections.length / 2) * 28 + 6;
+  // ── BLOC IKIGAI CENTRAL ──
+  const ikigaiTxt = document.getElementById('r-ikigai').textContent || '-';
+  const ikigaiLines = doc.splitTextToSize(ikigaiTxt, W - 2*M - 16);
+  const ikBh = 14 + ikigaiLines.length * 5.5 + 8;
 
   doc.setFillColor(44, 37, 32);
-  doc.roundedRect(M, y, W - 2 * M, 28, 4, 4, 'F');
+  doc.roundedRect(M, y, W - 2*M, ikBh, 4, 4, 'F');
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
+  doc.setFontSize(8);
   doc.setTextColor(184, 151, 106);
-  doc.text('TON IKIGAÏ', W / 2, y + 7, { align: 'center' });
+  doc.text('TON IKIGAI', W/2, y + 8, { align: 'center' });
 
-  const iLines = doc.splitTextToSize(document.getElementById('r-ikigai').textContent || '—', W - 2 * M - 16);
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(250, 248, 245);
-  doc.text(iLines, W / 2, y + 14, { align: 'center' });
+  doc.setFontSize(9.5);
+  doc.setTextColor(245, 240, 232);
+  doc.text(ikigaiLines, W/2, y + 15, { align: 'center' });
 
-  doc.setFontSize(7.5);
+  y += ikBh + 10;
+
+  // ── SCHEMA SVG en image ──
+  const svgEl = document.querySelector('.svg-wrap svg');
+  if (svgEl && typeof window.canvg !== 'undefined') {
+    // fallback si canvg disponible
+  }
+
+  // Légende textuelle du schema (remplacement simple)
+  if (y + 60 > 275) { y = addPage(doc); }
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
   doc.setTextColor(184, 151, 106);
-  doc.text('ikigai · 生き甲斐', W / 2, H - M + 2, { align: 'center' });
+  doc.text('SCHEMA IKIGAI', W/2, y, { align: 'center' });
+  y += 5;
+
+  const schema = [
+    { label: 'Passion',    desc: 'Ce que tu aimes  +  Ce pour quoi tu es doue(e)',       rc: [200, 100, 120] },
+    { label: 'Mission',    desc: 'Ce que tu aimes  +  Ce dont le monde a besoin',         rc: [80,  150,  90] },
+    { label: 'Vocation',   desc: 'Ce pour quoi tu es doue(e)  +  Ce dont le monde a besoin', rc: [80, 100, 175] },
+    { label: 'Profession', desc: 'Ce pour quoi tu es doue(e)  +  Ce pour quoi tu peux etre paye(e)', rc: [185, 140, 70] }
+  ];
+
+  schema.forEach(s => {
+    if (y + 10 > 275) { y = addPage(doc); }
+    doc.setFillColor(s.rc[0], s.rc[1], s.rc[2]);
+    doc.circle(M + 3, y + 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(s.rc[0]*0.6, s.rc[1]*0.6, s.rc[2]*0.6);
+    doc.text(s.label, M + 8, y + 4);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 90, 85);
+    doc.text(s.desc, M + 8, y + 9);
+    y += 14;
+  });
+
+  // Pied de page
+  doc.setFontSize(7);
+  doc.setTextColor(184, 151, 106);
+  doc.text('ikigai - ma raison d\'etre', W/2, 284, { align: 'center' });
 
   doc.save('mon-ikigai.pdf');
 }

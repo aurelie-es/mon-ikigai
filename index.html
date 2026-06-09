@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon Ikigaï — 生き甲斐</title>
+  <meta name="description" content="Découvre ton ikigaï — ta raison d'être, là où passion, mission, vocation et profession convergent." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="bg-deco"></div>
+    <div class="bg-deco2"></div>
+    <div class="kanji-deco">生き甲斐</div>
+
+    <div class="header">
+      <h1>Mon Ikigaï</h1>
+      <div class="header-line"></div>
+      <p>生き甲斐 — ta raison d'être, là où tout converge</p>
+    </div>
+
+    <div class="fields-grid">
+      <div class="field-card fc-aime">
+        <div class="field-num">01 · 愛</div>
+        <div class="field-title">Ce que j'aime</div>
+        <textarea id="aime" placeholder="Qu'est-ce qui t'enthousiasme vraiment ? Quelles activités te font perdre la notion du temps…"></textarea>
+      </div>
+      <div class="field-card fc-doue">
+        <div class="field-num">02 · 才</div>
+        <div class="field-title">Ce pour quoi je suis doué·e</div>
+        <textarea id="doue" placeholder="Quelles sont tes forces naturelles ? Ce que tu fais mieux que la plupart des gens…"></textarea>
+      </div>
+      <div class="field-card fc-paye">
+        <div class="field-num">03 · 業</div>
+        <div class="field-title">Ce pour quoi je peux être payé·e</div>
+        <textarea id="paye" placeholder="Quelles compétences ont une valeur économique ? Ce que le marché recherche…"></textarea>
+      </div>
+      <div class="field-card fc-monde">
+        <div class="field-num">04 · 世</div>
+        <div class="field-title">Ce dont le monde a besoin</div>
+        <textarea id="monde" placeholder="Quels problèmes veux-tu aider à résoudre ? Quel impact veux-tu avoir…"></textarea>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-sec" onclick="resetAll()">Effacer</button>
+      <button class="btn-main" id="genBtn" onclick="generate()">Révéler mon ikigaï</button>
+      <button class="btn-pdf" id="pdfBtn" onclick="downloadPDF()" style="display:none">
+        <i class="ti ti-download" aria-hidden="true"></i> Télécharger PDF
+      </button>
+    </div>
+
+    <div class="result-zone" id="results">
+      <div class="loading" id="loadMsg">Analyse en cours <span class="dots"></span></div>
+
+      <div id="resContent" style="display:none">
+        <div class="intersect-row">
+          <div class="ic ic-pass"><div class="ic-lbl">Passion</div><div class="ic-txt" id="r-passion">—</div></div>
+          <div class="ic ic-miss"><div class="ic-lbl">Mission</div><div class="ic-txt" id="r-mission">—</div></div>
+          <div class="ic ic-vocat"><div class="ic-lbl">Vocation</div><div class="ic-txt" id="r-vocation">—</div></div>
+          <div class="ic ic-prof"><div class="ic-lbl">Profession</div><div class="ic-txt" id="r-profession">—</div></div>
+        </div>
+
+        <div class="center-box">
+          <span class="cbox-lbl">Ton ikigaï · 生き甲斐</span>
+          <div class="cbox-txt" id="r-ikigai">—</div>
+        </div>
+
+        <div class="svg-wrap">
+          <svg viewBox="0 0 520 490" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;max-width:480px;width:100%">
+            <defs>
+              <style>
+                .lbl{font-family:'Noto Serif JP',serif;font-size:11.5px;fill:#3C342E}
+                .sub{font-family:'Noto Sans JP',sans-serif;font-size:9.5px;fill:#9A8880;font-weight:300}
+                .int{font-family:'Noto Sans JP',sans-serif;font-size:9px;font-weight:400}
+              </style>
+            </defs>
+            <circle cx="195" cy="168" r="128" fill="#FDF0F3" fill-opacity="0.72" stroke="#F2C4CE" stroke-width="1"/>
+            <circle cx="325" cy="168" r="128" fill="#EEF0F8" fill-opacity="0.72" stroke="#B0BCDB" stroke-width="1"/>
+            <circle cx="195" cy="308" r="128" fill="#EDF2ED" fill-opacity="0.72" stroke="#A8C8A8" stroke-width="1"/>
+            <circle cx="325" cy="308" r="128" fill="#FBF5EC" fill-opacity="0.72" stroke="#DCC49A" stroke-width="1"/>
+            <circle cx="260" cy="238" r="50" fill="#FAF8F5" fill-opacity="0.95" stroke="rgba(44,37,32,0.14)" stroke-width="0.8"/>
+            <text text-anchor="middle" class="lbl" x="138" y="124">Ce que</text>
+            <text text-anchor="middle" class="lbl" x="138" y="140">j'aime</text>
+            <text text-anchor="middle" class="sub" x="138" y="156">愛</text>
+            <text text-anchor="middle" class="lbl" x="382" y="124">Ce pour quoi</text>
+            <text text-anchor="middle" class="lbl" x="382" y="140">je suis doué·e</text>
+            <text text-anchor="middle" class="sub" x="382" y="156">才</text>
+            <text text-anchor="middle" class="lbl" x="138" y="356">Ce dont le</text>
+            <text text-anchor="middle" class="lbl" x="138" y="372">monde a besoin</text>
+            <text text-anchor="middle" class="sub" x="138" y="388">世</text>
+            <text text-anchor="middle" class="lbl" x="382" y="356">Ce pour quoi je</text>
+            <text text-anchor="middle" class="lbl" x="382" y="372">peux être payé·e</text>
+            <text text-anchor="middle" class="sub" x="382" y="388">業</text>
+            <text text-anchor="middle" class="int" fill="#B0566A" x="260" y="164">Passion</text>
+            <text text-anchor="middle" class="int" fill="#4A8050" x="195" y="240">Mission</text>
+            <text text-anchor="middle" class="int" fill="#9A7040" x="325" y="240">Profession</text>
+            <text text-anchor="middle" class="int" fill="#3A4870" x="260" y="316">Vocation</text>
+            <text text-anchor="middle" font-family="Noto Serif JP,serif" font-size="12" fill="#2C2520" font-weight="400" x="260" y="231">ikigaï</text>
+            <text text-anchor="middle" font-family="Noto Sans JP,sans-serif" font-size="8.5" fill="#ADA49C" x="260" y="248">生き甲斐</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

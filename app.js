@@ -1,5 +1,5 @@
 // ─── Configuration ───────────────────────────────────────────────
-const GROQ_API_KEY = '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';
+const GROQ_API_KEY = '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';
 const GROQ_MODEL   = 'llama-3.3-70b-versatile';
 
 // ─── Generate ────────────────────────────────────────────────────
@@ -108,17 +108,14 @@ function blockField(doc, y, W, M, label, num, val, rc) {
 
   if (y + bh > 275) { y = addPage(doc); }
 
-  // fond clair
   doc.setFillColor(rc[0], rc[1], rc[2]);
   doc.setGState(doc.GState({ opacity: 0.12 }));
   doc.roundedRect(M, y, W - 2*M, bh, 3, 3, 'F');
   doc.setGState(doc.GState({ opacity: 1 }));
 
-  // barre coloree gauche
   doc.setFillColor(rc[0], rc[1], rc[2]);
   doc.rect(M, y, 3, bh, 'F');
 
-  // numero + titre
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7);
   doc.setTextColor(rc[0]*0.55, rc[1]*0.55, rc[2]*0.55);
@@ -129,7 +126,6 @@ function blockField(doc, y, W, M, label, num, val, rc) {
   doc.setTextColor(44, 37, 32);
   doc.text(label, M + 7, y + 12);
 
-  // contenu
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(70, 60, 55);
@@ -171,16 +167,13 @@ function downloadPDF() {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const W = 210, M = 18;
 
-  // ── PAGE 1 : fond + en-tete ──
   doc.setFillColor(250, 248, 245);
   doc.rect(0, 0, W, 297, 'F');
 
-  // Cadre or
   doc.setDrawColor(184, 151, 106);
   doc.setLineWidth(0.4);
   doc.rect(10, 10, 190, 277);
 
-  // Titre
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7);
   doc.setTextColor(184, 151, 106);
@@ -206,7 +199,6 @@ function downloadPDF() {
 
   let y = 52;
 
-  // ── 4 CHAMPS ──
   const fields = [
     { num: '01', label: "Ce que j'aime",                    id: 'aime',  rc: [220, 160, 175] },
     { num: '02', label: "Ce pour quoi je suis doue(e)",     id: 'doue',  rc: [140, 155, 210] },
@@ -219,10 +211,8 @@ function downloadPDF() {
     y = blockField(doc, y, W, M, f.label, f.num, val, f.rc);
   });
 
-  // ── PAGE 2 : Synthese ──
   y = addPage(doc);
 
-  // Cadre or page 2
   doc.setDrawColor(184, 151, 106);
   doc.setLineWidth(0.4);
   doc.rect(10, 10, 190, 277);
@@ -238,7 +228,6 @@ function downloadPDF() {
 
   y = 32;
 
-  // ── 4 INTERSECTIONS ──
   const sections = [
     { label: 'PASSION',    id: 'r-passion',    rc: [200, 100, 120] },
     { label: 'MISSION',    id: 'r-mission',    rc: [80,  150,  90] },
@@ -257,7 +246,6 @@ function downloadPDF() {
   doc.line(M, y, W-M, y);
   y += 8;
 
-  // ── BLOC IKIGAI CENTRAL ──
   const ikigaiTxt = document.getElementById('r-ikigai').textContent || '-';
   const ikigaiLines = doc.splitTextToSize(ikigaiTxt, W - 2*M - 16);
   const ikBh = 14 + ikigaiLines.length * 5.5 + 8;
@@ -277,13 +265,6 @@ function downloadPDF() {
 
   y += ikBh + 10;
 
-  // ── SCHEMA SVG en image ──
-  const svgEl = document.querySelector('.svg-wrap svg');
-  if (svgEl && typeof window.canvg !== 'undefined') {
-    // fallback si canvg disponible
-  }
-
-  // Légende textuelle du schema (remplacement simple)
   if (y + 60 > 275) { y = addPage(doc); }
 
   doc.setFont('helvetica', 'bold');
@@ -314,7 +295,6 @@ function downloadPDF() {
     y += 14;
   });
 
-  // Pied de page
   doc.setFontSize(7);
   doc.setTextColor(184, 151, 106);
   doc.text('ikigai - ma raison d\'etre', W/2, 284, { align: 'center' });
